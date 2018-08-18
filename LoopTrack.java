@@ -1,4 +1,8 @@
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.Color;
 import javax.sound.sampled.*;
+
 
 /*
  * LoopTrack - data structure to hold and handle a looping soundtrack
@@ -15,11 +19,10 @@ public class LoopTrack extends SoundTrack {
 	private Clip[] tracks;
 	private int activeTrack = 0;
 	
+	public final int PIN_WIDTH = 8;
+	
 	public LoopTrack(String n, Clip c){
-		tracks = new Clip[1];
-		tracks[0] = c;
-		name = n;
-		type = TYPE_LOOP;
+		this(n, new Clip[] {c});
 	}
 	
 	public LoopTrack(String n, Clip[] c) {
@@ -29,12 +32,14 @@ public class LoopTrack extends SoundTrack {
 			tracks[i] = c[i];
 		}
 		name = n;
+		type = TYPE_LOOP;
+		priority = 0;
 	}
 	
 	public void activate() {
 		if (this.isPlaying()) {
 			if (tracks.length > 1) {
-				int currentPos = tracks[activeTrack].getFramePosition();
+				int currentPos = getTrackPosition();
 				tracks[activeTrack].stop();
 				activeTrack = (activeTrack + 1) % tracks.length;
 				tracks[activeTrack].setFramePosition(currentPos);
@@ -53,16 +58,29 @@ public class LoopTrack extends SoundTrack {
 		activeTrack = 0;
 	}
 	
+	public void drawSelf(Rectangle bounds, Graphics graphics) {
+		graphics.setColor(Color.blue);
+		graphics.fillRect(0, 0, bounds.width, bounds.height);
+		
+		int pixelPos = (int)(getTrackPercent() * bounds.width);
+		graphics.setColor(Color.black);
+		graphics.fillRect(pixelPos, 0, PIN_WIDTH, bounds.height);
+	}
+	
 	public int getTrackLength() {
 		return tracks[activeTrack].getFrameLength();
 	}
 	
 	public int getTrackPosition() {
-		return tracks[activeTrack].getFramePosition() % this.getTrackLength();
+		return tracks[activeTrack].getFramePosition() % getTrackLength();
 	}
 	
-	public void setTrackPosition(int pos) {
-		tracks[activeTrack].setFramePosition(pos);
+	public float getTrackPercent() {
+		return ((float)getTrackPosition()) / getTrackLength();
+	}
+	
+	public void setTrackPercent(float percent) {
+		tracks[activeTrack].setFramePosition((int)(percent * getTrackLength()));
 	}
 	
 	public boolean isPlaying() {

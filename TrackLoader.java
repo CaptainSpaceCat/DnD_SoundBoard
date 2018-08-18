@@ -17,7 +17,7 @@ import javax.sound.sampled.Clip;
  */
 public class TrackLoader {
 	//path variables, point to the folder with sound resources
-	private String resources = "C:\\Users\\Connor\\Desktop\\SoundBoard\\Resources";
+	private String resources = "C:\\Users\\Inigo\\Desktop\\SoundBoard\\Resources";
 	
 	private String ambientPath = "\\Ambient";
 	private String cinematicPath = "\\Cinematic";
@@ -28,6 +28,8 @@ public class TrackLoader {
 	public AmbientTrack[] ambientTracks;
 	public LoopTrack[] loopTracks;
 	public CinematicTrack[] cinematicTracks;
+	
+	public SoundTrack[] tracks;
 	
 	//constructor, loads all tracks upon creation
 	public TrackLoader() {
@@ -162,6 +164,7 @@ public class TrackLoader {
 				}
 				
 		        output[i] = new LoopTrack(name, soundClips);
+		        System.out.println("Type:" + output[i].type);
 			} catch (Exception e) {
 				System.out.println(e);
 			}

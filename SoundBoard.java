@@ -1,7 +1,4 @@
 import java.io.*;
-import java.lang.Math;
-import java.net.URL;
-import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.Graphics;
@@ -12,9 +9,12 @@ import java.awt.Dimension;
  * for each sound and will handle the interactions between all the tracks.
  */
 public class SoundBoard extends JFrame implements ActionListener{
+
+	private static final long serialVersionUID = -985494262699208461L;
+
 	JPanel panel;
 	
-	private String resources = "C:\\Users\\Connor\\Desktop\\SoundBoard\\Resources";
+	private String resources = "C:\\Users\\Inigo\\Desktop\\SoundBoard\\Resources";
 	
 	final int TYPE_UNKNOWN = -1;
 	final int TYPE_LOOP = 0;
@@ -33,14 +33,19 @@ public class SoundBoard extends JFrame implements ActionListener{
 	private JButton[] ambientButtons;
 	private JButton[] cinematicButtons;
 	
+	private JButton loopSettings, ambientSettings, cinematicSettings;
+	
 	private TrackLoader tl;
   
 	public SoundBoard() {
 		//initialize panel
 		panel = new JPanel() {
-		      public void paintComponent(Graphics g) {
-		    	  super.paintComponent(g);
-		      }
+
+			private static final long serialVersionUID = 7927056061489232065L;
+
+			public void paintComponent(Graphics g) {
+		    	super.paintComponent(g);
+		    }
 		};
 	    panel.setLayout(null);
 	
@@ -126,6 +131,11 @@ public class SoundBoard extends JFrame implements ActionListener{
 	    panel.add(soundBar);
 	    soundBar.setBounds(20, 200, 1200, 30);
 	    
+	    loopSettings = new JButton(new ImageIcon());
+	    loopSettings.addActionListener(this);
+	    panel.add(loopSettings);
+	    loopSettings.setBounds(20, 20, 30, 30);
+	    
 	    //engage panel
 	    this.add(panel);
 	    this.setVisible(true);
@@ -134,7 +144,7 @@ public class SoundBoard extends JFrame implements ActionListener{
 	public void refreshInitArea() {
 		BufferedReader br;
 		try {
-			br = new BufferedReader(new FileReader("C:\\Users\\Connor\\Desktop\\SoundBoard\\Resources\\_settings.txt"));
+			br = new BufferedReader(new FileReader(resources + "\\_settings.txt"));
 			String line;
 			while ((line = br.readLine()) != null) {
 				initArea.append(line + "\n");
@@ -156,6 +166,7 @@ public class SoundBoard extends JFrame implements ActionListener{
 			//System.err.println(e);
 		}
 	}
+	//1508929
 	
 	public void stopAllLoopTracks() {
 		for (int i = 0; i < loopButtons.length; i++) {
@@ -186,7 +197,7 @@ public class SoundBoard extends JFrame implements ActionListener{
 	//handle button presses
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == importButton) {
-			new TrackImporter(tl);
+			//new TrackImporter(tl);
 		} else if (e.getSource() == incrementTurn) {
 			
 		} else if (e.getSource() == battleButton) {
@@ -194,7 +205,7 @@ public class SoundBoard extends JFrame implements ActionListener{
 		} else if (e.getSource() == saveButton) {
 			saveInitArea();
 		} else if (e.getSource() == stopButton) {
-			soundBar.setTrackNull();
+			soundBar.setTrack(null);
 			stopAllTracks();
 		} else {
 			
@@ -205,8 +216,9 @@ public class SoundBoard extends JFrame implements ActionListener{
 				//turn off all loop tracks except for the clicked one
 				for (int i = 0; i < loopButtons.length; i++) {
 					if (e.getSource() == loopButtons[i]) {
-						tl.loopTracks[i].play();
+						tl.loopTracks[i].activate();
 						soundBar.setTrack(tl.loopTracks[i]);
+						System.out.println(tl.loopTracks[i].type);
 					} else {
 						tl.loopTracks[i].stop();
 					}
@@ -216,7 +228,7 @@ public class SoundBoard extends JFrame implements ActionListener{
 				//turn off all ambient tracks, toggle the clicked one
 				for (int i = 0; i < ambientButtons.length; i++) {
 					if (e.getSource() == ambientButtons[i]) {
-						tl.ambientTracks[i].toggle();
+						tl.ambientTracks[i].activate();
 						soundBar.setTrack(tl.ambientTracks[i]);
 					} else {
 						tl.ambientTracks[i].stop();
@@ -228,14 +240,14 @@ public class SoundBoard extends JFrame implements ActionListener{
 				//turn off all cinematic tracks except for the clicked one
 				for (int i = 0; i < cinematicButtons.length; i++) {
 					if (e.getSource() == cinematicButtons[i]) {
-						tl.cinematicTracks[i].nextSegment();
+						tl.cinematicTracks[i].activate();
 						soundBar.setTrack(tl.cinematicTracks[i]);
 					} else {
 						tl.cinematicTracks[i].stop();
 					}
 				}
 			} else if (type == TYPE_UNKNOWN) {
-				soundBar.setTrackNull();
+				soundBar.setTrack(null);
 				System.err.println("Error: type unknown");
 			}
 		}
